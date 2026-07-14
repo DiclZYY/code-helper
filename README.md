@@ -8,6 +8,7 @@
 |-------|------|
 | [spa-native-app-framework](skills/spa-native-app-framework/) | Vue2/3 + React：Tab 主壳 + 子页叠层、slide 转场、鉴权路由、keep-alive |
 | [apc-wechat-auth](skills/apc-wechat-auth/) | admin-pro-core：device.authorize 客户端授权 + 可选微信小程序登录栈 |
+| [svg-orb-hero-bg](skills/svg-orb-hero-bg/) | Vue2/3：可配置 SVG 光球渐变 Hero 背景动画，支持主题色适配 |
 
 ## 安装
 
@@ -16,6 +17,7 @@
 ```bash
 npx skills add DiclZYY/code-helper-skills --skill spa-native-app-framework
 npx skills add DiclZYY/code-helper-skills --skill apc-wechat-auth
+npx skills add DiclZYY/code-helper-skills --skill svg-orb-hero-bg
 ```
 
 ### 手动（个人 skills 目录）
