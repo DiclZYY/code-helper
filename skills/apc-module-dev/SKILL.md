@@ -1,11 +1,11 @@
 ---
-name: apc-module-development
+name: apc-module-dev
 description: >-
   apc 框架（Vue2 管理后台 + Laravel API）新增一个标准业务模块的完整流程：后端 Model / Repository / Controller + 前端四页（列表 / 表单 / 编辑 / 详情）+ mainResources 路由注册 + 权限 SQL 节点 + menu.json i18n + 可选 Excel 导入导出 + 表单一键模拟数据 + 详情补充区块 Mock。
   Use for 新增模块 / 新建模块 / 加一个模块 / CRUD 脚手架 / 三件套 / 四页一路由 / 标准业务模块开发。
 ---
 
-# apc-module-development
+# apc-module-dev（apc-module-development）
 
 在 apc 框架下新增一个标准业务模块（单表资源）的端到端 SOP。覆盖后端三件套 + 前端四页一路由 + 注册 + 菜单 + 权限 + 可选导入导出与模拟数据。
 

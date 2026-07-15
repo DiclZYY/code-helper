@@ -39,7 +39,7 @@ AI 编程助手（Cursor / Claude / Trae / Codex 等）请先阅读本文件，�
 > 命名规范：`<skill-name>` — `<一句话用途>`
 
 <!-- 安装后追加，例如： -->
-<!-- - `spa-native-app-framework` — Tab 主壳 + 子页叠层 + slide 转场 + keep-alive -->
+<!-- - `spa-naf`（SPA Native App Framework） — Tab 主壳 + 子页叠层 + slide 转场 + keep-alive -->
 
 ### Rules
 

@@ -1,5 +1,5 @@
 ---
-name: spa-native-app-framework
+name: spa-naf
 description: >-
   Designs SPA shells mimicking native apps: tab shell + stack overlay, replace
   navigation with app stackHistory, stack transition CSS (slide-left/right per
@@ -8,7 +8,7 @@ description: >-
   list-detail navigation, Cordova/H5.
 ---
 
-# SPA Native App Framework
+# spa-naf（SPA Native App Framework）
 
 框架无关的「Web SPA 模拟原生 App」整体设计。Vue2 为参考实现；**Vue3** 见 [Vue3 兼容性](#vue3-兼容性)；React 见各节的 **React 映射**。
 

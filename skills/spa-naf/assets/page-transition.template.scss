@@ -1,4 +1,4 @@
-// Stack overlay page transitions — canonical template for spa-native-app-framework.
+// Stack overlay page transitions — canonical template for spa-naf (SPA Native App Framework).
 // Bind via: <transition :name="routeTransitionName"> where name is slide-left | slide-right.
 // Import once in app entry (e.g. main.js). Duration: 0.5s. Use translate3d for GPU.
 //

@@ -60,7 +60,7 @@ npx degit DiclZYY/code-helper-skills/rules/<rule-name> .agents/rules/<rule-name>
 ### 一次性安装多个 skill
 
 ```bash
-for s in spa-native-app-framework svg-orb-hero-bg; do
+for s in spa-naf css-svg-animate-bg; do
   npx skills add DiclZYY/code-helper-skills --skill "$s"
 done
 ```

@@ -1,5 +1,5 @@
 ---
-name: svg-orb-hero-bg
+name: css-svg-animate-bg
 description: >-
   Build configurable SVG orb/gradient hero-background animations with CSS
   keyframes: multi-layer nested <g> translation + rotation, radial-gradient
@@ -8,7 +8,7 @@ description: >-
   brand showcases.
 ---
 
-# SVG Orb Hero Background
+# css-svg-animate-bg（CSS SVG Animate Background）
 
 基于纯 CSS + SVG 的 Hero 区背景动画系统：多个径向渐变光球通过异步平移与旋转形成流动感，可选网格图案叠加。支持通过 CSS 变量或 SCSS 配置颜色、不透明度、动画时长，亦可对接项目主题色自动推导渐变。
 
