@@ -1,48 +1,27 @@
-# code-helper-skills
+# code-helper
 
-面向 AI 编程助手的 **Agent Skills** 合集，遵循 [Agent Skills 规范](https://agentskills.io/specification) 与 [skills-npm 目录约定](https://github.com/antfu/skills-npm/blob/main/PROPOSAL.md)（`skills/<skill-name>/SKILL.md`）。
+面向 AI 编程助手的 **Agent Skills + Rules** 合集。
 
-## Skills 目录
+- **Skills**（按 description 触发词匹配，按需加载）：[skills/INDEX.md](./skills/INDEX.md)
+- **Rules**（始终生效，常驻上下文）：[rules/INDEX.md](./rules/INDEX.md)
 
-| Skill | 说明 |
-|-------|------|
-| [spa-native-app-framework](skills/spa-native-app-framework/) | Vue2/3 + React：Tab 主壳 + 子页叠层、slide 转场、鉴权路由、keep-alive |
-| [apc-wechat-auth](skills/apc-wechat-auth/) | admin-pro-core：device.authorize 客户端授权 + 可选微信小程序登录栈 |
-| [svg-orb-hero-bg](skills/svg-orb-hero-bg/) | Vue2/3：可配置 SVG 光球渐变 Hero 背景动画，支持主题色适配 |
+## 目录结构
 
-## 安装
-
-### Cursor / Claude（skills CLI）
-
-```bash
-npx skills add DiclZYY/code-helper-skills --skill spa-native-app-framework
-npx skills add DiclZYY/code-helper-skills --skill apc-wechat-auth
-npx skills add DiclZYY/code-helper-skills --skill svg-orb-hero-bg
 ```
-
-### 手动（个人 skills 目录）
-
-```bash
-git clone git@github.com:DiclZYY/code-helper-skills.git
-# 复制或 symlink 到 ~/.cursor/skills/
-# 例：skills/spa-native-app-framework → ~/.cursor/skills/spa-native-app-framework
+code-helper/
+├── README.md                       # 本文件（总入口）
+├── skills/
+│   ├── INDEX.md                    # Skills 索引与安装
+│   └── <skill-name>/SKILL.md       # Agent Skill 定义
+└── rules/
+    ├── INDEX.md                    # Rules 索引与安装
+    └── <rule-name>/*.md            # 框架硬约束（分类子文件 + README.md）
 ```
-
-### 通过 npm 包布局（可选）
-
-本仓库 `package.json` 的 `files` 含 `skills/`，日后若发布 npm，可配合 `skills-npm` 发现技能。
-
-## 新增 Skill
-
-1. 在 `skills/<skill-name>/` 下创建 `SKILL.md`
-2. frontmatter 中 `name` **必须**与目录名一致
-3. 详细文档放在 `references/`（可选 `scripts/`、`assets/`）
-4. 更新本 README 目录表
 
 ## 规范链接
 
-- https://agentskills.io/specification
-- https://github.com/antfu/skills-npm
+- [Agent Skills 规范](https://agentskills.io/specification)
+- [skills-npm 目录约定](https://github.com/antfu/skills-npm/blob/main/PROPOSAL.md)
 
 ## License
 
