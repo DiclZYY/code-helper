@@ -3,7 +3,7 @@
 > **本文件为 Rule 概要**：定义「在 apc 框架下新增一个标准业务模块」的最小骨架与硬约束。  
 > **完整流程（含表单字段、Mock 数据、权限 SQL 等细节）**：业务仓库 `docs/framework/module-development.md`（同步保留）。
 >
-> 后续计划拆分为独立 Skill（`apc-module-development`），用于 AI 按需加载完整流程。
+> 后续计划拆分为独立 Skill（`apc-module-dev`），用于 AI 按需加载完整流程。
 
 ## 适用范围
 

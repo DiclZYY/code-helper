@@ -4,7 +4,7 @@
 在 apc 系仓库内进行任何需求开发 / 修复 / 重构时，默认遵循本目录下的全部规则。
 
 > 与 **Skill** 的关系：本目录是 **Rule**（始终生效），用于约束类内容；  
-> 流程类内容（如「新增一个业务模块」「安装构建脚本并发布」「生成 changelog 并入库」）已拆为独立 Skill（[apc-module-development](../../skills/apc-module-development/) / [apc-build-helper](../../skills/apc-build-helper/) / [apc-release-changelog](../../skills/apc-release-changelog/)），按需触发。
+> 流程类内容（如「新增一个业务模块」「安装构建脚本并发布」「生成 changelog 并入库」）已拆为独立 Skill（[apc-module-dev](../../skills/apc-module-dev/) / [apc-build-helper](../../skills/apc-build-helper/) / [apc-release-changelog](../../skills/apc-release-changelog/)），按需触发。
 
 ## 适用仓库
 
@@ -33,7 +33,7 @@
 
 ### 流程概要（仅保留概要，完整 SOP 见 Skill）
 
-- [module-development.md](./module-development.md) — **概要**：新增一个标准业务模块的最小骨架与硬约束。完整 SOP：[skills/apc-module-development](../../skills/apc-module-development/)
+- [module-development.md](./module-development.md) — **概要**：新增一个标准业务模块的最小骨架与硬约束。完整 SOP：[skills/apc-module-dev](../../skills/apc-module-dev/)
 - [deploy-release.md](./deploy-release.md) — **概要**：发布模式 / vendor 策略 / 回滚原则。配套构建脚本见 [skills/apc-build-helper](../../skills/apc-build-helper/)
 
 ## 按场景快速跳转
@@ -43,7 +43,7 @@
 | 第一次接触本仓库 | tech-stack → repo-structure → dev-workflow |
 | 写前端代码 | frontend-vue2 → code-style → security |
 | 写后端代码 | backend-laravel → code-style → security |
-| 新增业务模块 | [skills/apc-module-development](../../skills/apc-module-development/)（端到端 SOP）→ frontend-vue2 / backend-laravel（按端） |
+| 新增业务模块 | [skills/apc-module-dev](../../skills/apc-module-dev/)（端到端 SOP）→ frontend-vue2 / backend-laravel（按端） |
 | 准备发布 | [skills/apc-build-helper](../../skills/apc-build-helper/)（构建脚本安装 + npm 命令）→ security |
 | 发布后 changelog | [skills/apc-release-changelog](../../skills/apc-release-changelog/)（extract + classify + format + 入库） |
 | 排查通用问题 | dev-workflow（常见问题定位） |
