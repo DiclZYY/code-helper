@@ -1,0 +1,41 @@
+{
+  "_comment": "apc 框架（Vue2 + Laravel）默认 release-config 模板。可根据具体项目结构调整 directories / del / baseline。",
+  "projectType": "apc-vue2-laravel",
+  "directories": {
+    "frontend": "backend",
+    "backend": "api",
+    "adminBuiltDir": "public/admin",
+    "publicPath": "public"
+  },
+  "build": {
+    "command": "vue-cli-service build",
+    "mode": "production"
+  },
+  "del": [
+    ".git/",
+    ".vscode",
+    ".gitignore",
+    "api/.env",
+    "api/.author",
+    "api/composer.lock",
+    "api/storage/logs/error/",
+    "api/storage/logs/sql/",
+    "api/storage/logs/single/*",
+    "api/storage/app/",
+    "api/storage/framework/session/",
+    "api/storage/framework/cache/data/",
+    "api/storage/framework/views/data/",
+    "api/config/dict.php",
+    "backend/",
+    "backup/",
+    "docs/",
+    "vetur.config.js"
+  ],
+  "copy": {},
+  "baseline": {
+    "_comment": "上次发布 commit 的识别方式。mode: commit（按 message grep）| tag（按 git tag）| hybrid（tag 优先，回退 commit）",
+    "mode": "commit",
+    "grep": "release[:：]\\s*v\\|update[:：]\\s*version\\s*v",
+    "tagPattern": "v*"
+  }
+}
