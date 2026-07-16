@@ -11,7 +11,7 @@
 ## 新增 rule
 
 ```bash
-npx degit DiclZYY/code-helper-skills/rules/<rule-name> .agents/rules/<rule-name>
+npx degit DiclZYY/code-helper/rules/<rule-name> .agents/rules/<rule-name>
 ```
 
 或从其它仓库拷贝 `<rule-name>/` 整个目录。

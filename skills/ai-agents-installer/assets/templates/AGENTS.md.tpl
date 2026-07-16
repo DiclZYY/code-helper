@@ -10,24 +10,44 @@ AI 编程助手（Cursor / Claude / Trae / Codex 等）请先阅读本文件，�
 
 主要改动落在：
 
+<!-- ai-agents-installer:working-dir:frontend -->
 - 前端：`<fill>`
+<!-- /ai-agents-installer:working-dir:frontend -->
+<!-- ai-agents-installer:working-dir:backend -->
 - 后端：`<fill>`
+<!-- /ai-agents-installer:working-dir:backend -->
+<!-- ai-agents-installer:working-dir:toolchain -->
 - 工具链：`<fill>`
+<!-- /ai-agents-installer:working-dir:toolchain -->
 
 不在 AI 助手权限内的目录：`node_modules/`、`.git/`、`vendor/`、自动生成代码。
 
 ## Language & framework
 
+<!-- ai-agents-installer:language:primary -->
 - 主要语言：`<fill>`
+<!-- /ai-agents-installer:language:primary -->
+<!-- ai-agents-installer:language:framework -->
 - 主要框架：`<fill>`
+<!-- /ai-agents-installer:language:framework -->
+<!-- ai-agents-installer:language:pkgmanager -->
 - 包管理：`<fill>`（npm / pnpm / yarn / composer）
+<!-- /ai-agents-installer:language:pkgmanager -->
 
 ## Conventions
 
+<!-- ai-agents-installer:conventions:naming -->
 - 命名：`<fill>`
+<!-- /ai-agents-installer:conventions:naming -->
+<!-- ai-agents-installer:conventions:filestructure -->
 - 文件结构：`<fill>`
+<!-- /ai-agents-installer:conventions:filestructure -->
+<!-- ai-agents-installer:conventions:gitcommit -->
 - Git commit：`<fill>`
+<!-- /ai-agents-installer:conventions:gitcommit -->
+<!-- ai-agents-installer:conventions:codestyle -->
 - 代码风格：`<fill>`
+<!-- /ai-agents-installer:conventions:codestyle -->
 
 ## Installed toolset
 

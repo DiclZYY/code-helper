@@ -11,7 +11,7 @@
 ## 新增 skill
 
 ```bash
-npx skills add DiclZYY/code-helper-skills --skill <skill-name>
+npx skills add DiclZYY/code-helper --skill <skill-name>
 # 然后把内容同步到 .agents/skills/<skill-name>/
 ```
 

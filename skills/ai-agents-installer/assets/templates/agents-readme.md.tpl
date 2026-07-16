@@ -19,7 +19,7 @@
 
 - **Skills** 按 description 中的触发词匹配，按需加载；新增 / 删除 skill 后必须同步更新根 `AGENTS.md` 的「Installed toolset」
 - **Rules** 始终生效，常驻 AI 助手上下文；修改 rule 等同于修改项目硬约束，必须走 PR 评审
-- skill 与 rule 目录名应与源仓库（默认 `DiclZYY/code-helper-skills`）保持逐字符一致
+- skill 与 rule 目录名应与源仓库（默认 `DiclZYY/code-helper`）保持逐字符一致
 - 不在 `.agents/` 下放业务代码、依赖、机密文件
 
 ## 安装 / 卸载

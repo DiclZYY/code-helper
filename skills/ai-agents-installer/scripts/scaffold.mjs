@@ -4,7 +4,7 @@
  *
  * 用法：
  *   node scripts/scaffold.mjs                                  # 当前目录，默认仓库
- *   node scripts/scaffold.mjs --repo DiclZYY/code-helper-skills
+ *   node scripts/scaffold.mjs --repo DiclZYY/code-helper
  *   node scripts/scaffold.mjs --project-root /path/to/project
  *
  * 行为：
@@ -21,7 +21,7 @@ const SKILL_ROOT = resolve(__dirname, '..')
 const TEMPLATE_DIR = join(SKILL_ROOT, 'assets', 'templates')
 
 function parseArgs(argv) {
-  const args = { repo: 'DiclZYY/code-helper-skills', projectRoot: process.cwd() }
+  const args = { repo: 'DiclZYY/code-helper', projectRoot: process.cwd() }
   for (let i = 2; i < argv.length; i++) {
     const a = argv[i]
     if (a === '--repo') args.repo = argv[++i]

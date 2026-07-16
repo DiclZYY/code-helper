@@ -29,7 +29,7 @@
 ### Cursor / Claude
 
 ```bash
-git clone git@github.com:DiclZYY/code-helper-skills.git
+git clone git@github.com:DiclZYY/code-helper.git
 # 用户级：~/.cursor/rules/
 # 仓库级：<your-project>/.cursor/rules/
 

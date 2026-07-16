@@ -21,19 +21,19 @@
 ### Cursor / Claude（skills CLI）
 
 ```bash
-npx skills add DiclZYY/code-helper-skills --skill spa-naf
-npx skills add DiclZYY/code-helper-skills --skill ai-agents-installer
-npx skills add DiclZYY/code-helper-skills --skill apc-wechat-auth
-npx skills add DiclZYY/code-helper-skills --skill css-svg-animate-bg
-npx skills add DiclZYY/code-helper-skills --skill apc-module-dev
-npx skills add DiclZYY/code-helper-skills --skill apc-build-helper
-npx skills add DiclZYY/code-helper-skills --skill apc-release-changelog
+npx skills add DiclZYY/code-helper --skill spa-naf
+npx skills add DiclZYY/code-helper --skill ai-agents-installer
+npx skills add DiclZYY/code-helper --skill apc-wechat-auth
+npx skills add DiclZYY/code-helper --skill css-svg-animate-bg
+npx skills add DiclZYY/code-helper --skill apc-module-dev
+npx skills add DiclZYY/code-helper --skill apc-build-helper
+npx skills add DiclZYY/code-helper --skill apc-release-changelog
 ```
 
 ### 手动（个人 skills 目录）
 
 ```bash
-git clone git@github.com:DiclZYY/code-helper-skills.git
+git clone git@github.com:DiclZYY/code-helper.git
 # 复制或 symlink 到 ~/.cursor/skills/
 # 例：skills/spa-naf → ~/.cursor/skills/spa-naf
 ```

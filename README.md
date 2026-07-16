@@ -8,7 +8,7 @@
 ## 快速开始：在项目里初始化 AI 工具集
 
 ```bash
-npx skills add DiclZYY/code-helper-skills --skill ai-agents-installer
+npx skills add DiclZYY/code-helper --skill ai-agents-installer
 ```
 
 安装 `ai-agents-installer` 后，在目标项目里执行 `node scripts/detect.mjs` → `node scripts/scaffold.mjs`，即可生成符合 AGENTS.md + `.agents/` 行业标准的骨架，并把后续 skill / rule 默认安装到 `.agents/skills/`、`.agents/rules/`。

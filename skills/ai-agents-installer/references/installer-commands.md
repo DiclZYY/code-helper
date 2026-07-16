@@ -9,7 +9,7 @@
 
 | 参数 | 默认值 | 备注 |
 |------|--------|------|
-| 源仓库 (`repo`) | `DiclZYY/code-helper-skills` | 来自 `AGENTS.md` 的 `{{REPO_DEFAULT}}` 占位符 |
+| 源仓库 (`repo`) | `DiclZYY/code-helper` | 来自 `AGENTS.md` 的 `{{REPO_DEFAULT}}` 占位符 |
 | skill 落点 | `.agents/skills/<skill-name>/` | 除非用户显式 `--to` |
 | rule 落点 | `.agents/rules/<rule-name>/` | 用 `npx degit` 拷贝 |
 
@@ -29,13 +29,13 @@ node scripts/detect.mjs
 node scripts/scaffold.mjs
 
 # 指定源仓库
-node scripts/scaffold.mjs --repo DiclZYY/code-helper-skills
+node scripts/scaffold.mjs --repo DiclZYY/code-helper
 ```
 
 ### 安装单个 skill
 
 ```bash
-npx skills add DiclZYY/code-helper-skills --skill <skill-name>
+npx skills add DiclZYY/code-helper --skill <skill-name>
 # 默认会按 skills CLI 自身的规则放到 ~/.cursor/skills/ 等个人目录
 # 项目级安装：把内容复制到 .agents/skills/<skill-name>/
 ```
@@ -44,7 +44,7 @@ npx skills add DiclZYY/code-helper-skills --skill <skill-name>
 
 ```bash
 TMP=$(mktemp -d)
-npx skills add DiclZYY/code-helper-skills --skill <skill-name> --to "$TMP"
+npx skills add DiclZYY/code-helper --skill <skill-name> --to "$TMP"
 cp -r "$TMP/<skill-name>/." ".agents/skills/<skill-name>/"
 rm -rf "$TMP"
 ```
@@ -54,14 +54,14 @@ rm -rf "$TMP"
 ### 安装 rule
 
 ```bash
-npx degit DiclZYY/code-helper-skills/rules/<rule-name> .agents/rules/<rule-name>
+npx degit DiclZYY/code-helper/rules/<rule-name> .agents/rules/<rule-name>
 ```
 
 ### 一次性安装多个 skill
 
 ```bash
 for s in spa-naf css-svg-animate-bg; do
-  npx skills add DiclZYY/code-helper-skills --skill "$s"
+  npx skills add DiclZYY/code-helper --skill "$s"
 done
 ```
 
@@ -77,7 +77,7 @@ PowerShell 安装 skill 的完整片段：
 
 ```powershell
 $tmp = Join-Path $env:TEMP ([System.Guid]::NewGuid().ToString())
-npx skills add DiclZYY/code-helper-skills --skill <skill-name> --to $tmp
+npx skills add DiclZYY/code-helper --skill <skill-name> --to $tmp
 Copy-Item -Recurse -Force `
   (Join-Path $tmp "<skill-name>") `
   (Join-Path ".agents/skills" "<skill-name>")
@@ -88,7 +88,7 @@ Remove-Item -Recurse -Force $tmp
 
 ### `npx skills` 找不到仓库
 
-- 确认仓库名正确：`DiclZYY/code-helper-skills`（**不是** `code-helper`）
+- 确认仓库名正确：`DiclZYY/code-helper`（**不是** `code-helper`）
 - 仓库必须可公开访问；若私有需配 GitHub token
 
 ### `npx skills add` 默认装到个人目录
@@ -101,7 +101,7 @@ Remove-Item -Recurse -Force $tmp
 
 ### Rule 装好后 `.agents/skills/` 也出现同名目录
 
-`npx degit` 不会区分 skill / rule，路径写对即可。确认 `DiclZYY/code-helper-skills/rules/<name>/` 存在再执行。
+`npx degit` 不会区分 skill / rule，路径写对即可。确认 `DiclZYY/code-helper/rules/<name>/` 存在再执行。
 
 ### frontmatter `name` 与目录名不一致
 
