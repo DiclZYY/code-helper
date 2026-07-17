@@ -33,7 +33,7 @@ compatibility: Requires Node.js 18+, npx, and network access to GitHub for `npx 
 
 **不适用：**
 
-- 仓库自身的 skill / rule 维护（在 `code-helper-skills` 仓内编辑 `skills/<name>/SKILL.md` 本身）
+- 仓库自身的 skill / rule 维护（在 `code-helper` 仓内编辑 `skills/<name>/SKILL.md` 本身）
 - 用户明确指定其它目录（如 `.cursor/`、`.claude/`）作为 AI 工具集落点，本 skill 仍可执行 init，但需要明确告知偏离 `.agents/` 默认
 - 仅想在终端临时查看 / 调用某个 skill 而不需要持久化到项目
 
@@ -350,7 +350,7 @@ AI 自行决定读哪些文件，但**至少**覆盖下列样本：
 - 把 rule 当 skill 装（`npx skills add` 不适用于硬约束型 rule）
 - 在 `AGENTS.md` 写「所有约束」后仍让 `.agents/skills/` 与 `.agents/rules/` 缺失 → 工具集只挂在 AGENTS.md，AI 助手无法按 description 触发
 - 跨平台时忽略 PowerShell 与 `npx degit` 的差异（见 [references/installer-commands.md](references/installer-commands.md#跨平台注意)）
-- 把 `code-helper-skills` 的仓库地址写死成 `code-helper`（仓库名是 `code-helper-skills`），导致 `npx skills add` 找不到
+- 把 `code-helper` 的仓库地址写死成 `code-helper`（仓库名是 `code-helper`），导致 `npx skills add` 找不到
 - 不回写 `AGENTS.md` 的「已安装工具集」，后续接手者无法快速知道项目挂了哪些 skill / rule
 - 在 Step 1.5 选 B 时仍偷偷执行 Step 7 → 违反用户意图（必须按面板选项严格执行）
 - Step 7 扫描到 `node_modules/` / `vendor/` / `.git/` / `dist/` / `build/` → 浪费 token 且干扰模式识别
