@@ -11,7 +11,7 @@
 | [spa-naf](spa-naf/) | Vue2/3 + React：Tab 主壳 + 子页叠层、slide 转场、鉴权路由、keep-alive |
 | [ai-agents-installer](ai-agents-installer/) | 初始化项目的 AI 工具集：生成 AGENTS.md + .agents/ 标准骨架，并按 `npx skills add` 把 skill/rule 装到 .agents/skills / .agents/rules |
 | [apc-wechat-auth](apc-wechat-auth/) | admin-pro-core：device.authorize 客户端授权 + 可选微信小程序登录栈 |
-| [css-svg-animate-bg](css-svg-animate-bg/) | Vue2/3：可配置 SVG 光球渐变 Hero 背景动画，支持主题色适配 |
+| [css_anicase](css_anicase/) | 纯前端动画案例库：SVG + CSS，可选 GSAP；含光球 / 无缝波浪 / 透视事务卡片 |
 | [apc-module-dev](apc-module-dev/) | apc 框架：新增一个标准业务模块的完整流程（后端三件套 + 前端四页 + mainResources + 权限 SQL + 模拟数据） |
 | [apc-build-helper](apc-build-helper/) | apc 框架：构建工具链安装（version + release + deploy + release-config.json，支持 npm/pnpm） |
 | [apc-release-changelog](apc-release-changelog/) | apc 框架：发布后生成 changelog（识别起点 commit + 抽取 message 集合 + AI 归类整理 + 可选 artisan 入库） |
@@ -24,7 +24,7 @@
 npx skills add DiclZYY/code-helper --skill spa-naf
 npx skills add DiclZYY/code-helper --skill ai-agents-installer
 npx skills add DiclZYY/code-helper --skill apc-wechat-auth
-npx skills add DiclZYY/code-helper --skill css-svg-animate-bg
+npx skills add DiclZYY/code-helper --skill css_anicase
 npx skills add DiclZYY/code-helper --skill apc-module-dev
 npx skills add DiclZYY/code-helper --skill apc-build-helper
 npx skills add DiclZYY/code-helper --skill apc-release-changelog
