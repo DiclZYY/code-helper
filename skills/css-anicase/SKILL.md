@@ -1,5 +1,5 @@
 ---
-name: css_anicase
+name: css-anicase
 description: >-
   Pure-frontend animation skill: build UI motion with SVG, CSS keyframes, and
   optional GSAP. Case library covers hero orb blobs, seamless looping waves,
@@ -7,7 +7,7 @@ description: >-
   brand showcases, ambient backgrounds, SVG animation, GSAP timeline.
 ---
 
-# css_anicase（纯前端 SVG / CSS / GSAP 动画）
+# css-anicase（纯前端 SVG / CSS / GSAP 动画）
 
 用**纯前端**手段构建可复用动画：不依赖视频、WebGL 或服务端渲染。技术栈按复杂度选型——
 
@@ -44,7 +44,7 @@ description: >-
 
 | # | 案例 | 技术栈 | 一句话 | 文档 | 模板 |
 |---|------|--------|--------|------|------|
-| 1 | **Hero 光球渐变** | 纯 SVG + CSS | 多层径向光球异步平移/旋转，首屏氛围 | [case-orb-hero](references/case-orb-hero.md) | [orb-hero.template.vue](assets/orb-hero.template.vue) |
+| 1 | **Hero 光球渐变** | 纯 SVG + CSS | 对齐 [PHP 8.5 hero](https://www.php.net/releases/8.5/zh.php)：三层嵌套 g + 错相时长 + opacity 0.35 | [case-orb-hero](references/case-orb-hero.md) | [orb-hero.template.vue](assets/orb-hero.template.vue) |
 | 2 | **底部无缝波浪** | 纯 SVG + CSS | 双周期 path + `translateX(-50%)` 无跳动；可 mask 融合底图 | [case-seamless-wave](references/case-seamless-wave.md) | [seamless-wave.template.vue](assets/seamless-wave.template.vue) |
 | 3 | **透视事务卡片流** | SVG + CSS 舞台 + **GSAP** | 向内 ~45° 透视，多形态卡片入场→纵深→消失 | [case-perspective-tx-cards](references/case-perspective-tx-cards.md) | [perspective-tx-cards.template.vue](assets/perspective-tx-cards.template.vue) |
 

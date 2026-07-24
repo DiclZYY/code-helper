@@ -1,6 +1,6 @@
 <template>
   <!--
-    css_anicase / assets/perspective-tx-cards.template.vue
+    css-anicase / assets/perspective-tx-cards.template.vue
     依赖：npm i gsap
     精简版：3 种卡 + 完整 GSAP 时间轴；完整 8 类型见 references/case-perspective-tx-cards.md
   -->

@@ -1,6 +1,6 @@
 <template>
   <!--
-    css_anicase / assets/seamless-wave.template.vue
+    css-anicase / assets/seamless-wave.template.vue
     用法：放入 relative 容器底部；改 .wave--* 的 color / duration 即可换肤
   -->
   <div class="seamless-waves" aria-hidden="true">

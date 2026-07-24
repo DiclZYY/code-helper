@@ -60,7 +60,7 @@ npx degit DiclZYY/code-helper/rules/<rule-name> .agents/rules/<rule-name>
 ### 一次性安装多个 skill
 
 ```bash
-for s in spa-naf css_anicase; do
+for s in spa-naf css-anicase; do
   npx skills add DiclZYY/code-helper --skill "$s"
 done
 ```
