@@ -122,7 +122,53 @@ bootstrap/app.php
 | 计划任务 `schedule:run` | ✅ | 同上 |
 | 纯 PHP 脚本（不 boot Laravel） | ❌ | 无 provider 注册；如需单独检测需手动调用 `check_version()` |
 
-## 4. 异常层：`Las\Exceptions\OutputException` → `App\Exceptions\Handler`
+### ⚠️ 副作用：签发命令同样被拦（续期死锁）
+
+因为检测发生在**容器注册阶段**，签发命令 `expbuild`（注册于 `api/routes/console.php`）**不具备豁免权**：
+
+```
+php artisan expbuild
+      ↓
+RegisterProviders → AppServiceProvider::register() → check_version()
+      ↓
+exp.bin 已过期 → throw OutputException
+      ↓
+命令在 provider 注册阶段就被打断，签发逻辑根本没执行
+```
+
+**表现**：许可过期后，控制台执行 `php artisan expbuild` 直接报未授权、命令被截断，新 exp.bin 无法生成。
+
+**处置**：`api/.env` 设 `ADMIN_CHECK_VERSION=false` → `php artisan config:clear` → 执行 `expbuild` → 改回 `true` → 再 `config:clear`。完整流程见 [license-file.md §5](./license-file.md#5-续期死锁与逃生流程)。
+
+## 4. 签发命令层：`api/routes/console.php` → `expbuild`
+
+许可文件的签发命令注册在 `api/routes/console.php`：
+
+```php
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Crypt;
+
+// 生成 exp.bin
+Artisan::command('expbuild', function () {
+    $exp = [
+        'x' => strtotime('2027-6-1 00:00:00'),
+        'message' => '您的服务已到期，请及时与服务提供商联系以获取续订或更新服务的信息。'
+    ];
+    $exp = Crypt::encrypt($exp);
+    echo 'Build expire successfully!'.PHP_EOL;
+    echo $exp;
+    file_put_contents(app()->bootstrapPath('cache/exp.bin'), $exp);
+})->describe('build expire message');
+```
+
+| 关注点 | 说明 |
+|--------|------|
+| 与检测层的关系 | 命令本身**不豁免**许可检测；过期时需先 `ADMIN_CHECK_VERSION=false`（见上方「续期死锁」小节） |
+| 到期时间硬编码 | 每次续期要改 `routes/console.php` 里的日期与文案；频繁续期可改用参数化命令（见 license-file.md §4.3） |
+| 输出密文 | `echo $exp` 便于跨机投放，但密文含到期信息，注意不要在共享日志/工单回显 |
+| 时区依赖 | `strtotime()` 走服务器默认时区，与 `config/app.php` 的 `timezone` 对齐 |
+
+## 5. 异常层：`Las\Exceptions\OutputException` → `App\Exceptions\Handler`
 
 `api/app/Exceptions/Handler.php` 的 `render()` 中，`expectsJson()` 分支对 `OutputException` 有专门 case：
 
@@ -149,7 +195,7 @@ case DataNotFoundException::class:
 | 说明当前状态 + 下一步动作 | ✅ `系统授权已于 2026-01-01 到期，请联系管理员续期。` |
 | 不含内部路径 / 密钥 / 堆栈 | ❌ `D:\deploy\api\bootstrap\cache\exp.bin not found` |
 
-## 5. 检测逻辑伪码
+## 6. 检测逻辑伪码
 
 ```
 check_version():
@@ -161,13 +207,15 @@ check_version():
   // 通过
 ```
 
-## 6. 排障对照表
+## 7. 排障对照表
 
 | 报错文案 / 现象 | 定位步骤 |
 |-----------------|----------|
 | 「未授权使用」 | ① `ADMIN_CHECK_VERSION` 是否为 true ② 目标机 `api/bootstrap/cache/exp.bin` 是否存在 ③ 目标机 `APP_KEY` 是否与签发端一致 |
 | 「系统授权已到期」 | ① 解密 `exp.bin` 看 `x` 值 ② 核对服务器时间与时区 ③ 确认签发时到期日是否算错（含 `23:59:59` 与时区） |
 | 本地开发被拦截 | 本机 `api/.env` 设置 `ADMIN_CHECK_VERSION=false`，并 `php artisan config:clear` |
+| **过期后 `php artisan expbuild` 报未授权 / 命令被截断** | **签发命令自身被拦截（续期死锁）→ `.env` 设 `ADMIN_CHECK_VERSION=false` → `config:clear` → 签发 → 改回 `true` → `config:clear`** |
+| 改了 `.env` 但开关没生效 | 目标机跑过 `config:cache` / `optimize`，`env()` 读的是缓存值 → 执行 `php artisan config:clear` |
 | 只有 CLI 报错，HTTP 正常 | 检测点被移出了 provider 注册阶段；恢复到 `AppServiceProvider::register()` |
 | 部署后首次访问报未授权，随后正常 | 目标机写文件与首次请求之间有竞态，或 `bootstrap/cache` 被清理后由外部流程重新投放 |
 | 生产返回 500 + 堆栈 | `APP_DEBUG=true` 未关闭；许可异常应走 `OutputException` 分支，不应进 default 分支 |

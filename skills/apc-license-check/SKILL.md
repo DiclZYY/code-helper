@@ -1,8 +1,8 @@
 ---
 name: apc-license-check
 description: >-
-  apc 框架（admin-pro-core / Laravel 8）系统许可检测能力的接入与封装：check_version() 全局函数 + config/admin.php 开关（ADMIN_CHECK_VERSION）+ bootstrap/cache/exp.bin 加密许可文件（APP_KEY 加密，含到期时间 x 与提示 message）+ OutputException 拦截 + 许可文件生成与续期。
-  Use for 许可检测 / 授权校验 / 系统授权 / 授权到期 / exp.bin / check_version / 加授权限制 / license check / 未授权使用。
+  apc 框架（admin-pro-core / Laravel 8）系统许可检测能力的接入与封装：check_version() 全局函数 + config/admin.php 开关（ADMIN_CHECK_VERSION）+ bootstrap/cache/exp.bin 加密许可文件（APP_KEY 加密，含到期时间 x 与提示 message）+ OutputException 拦截 + expbuild 签发与续期。
+  Use for 许可检测 / 授权校验 / 系统授权 / 授权到期 / exp.bin / expbuild / check_version / 加授权限制 / license check / 未授权使用 / 续期。
 ---
 
 # apc-license-check（admin-pro-core license check）
@@ -18,7 +18,8 @@ description: >-
 - 需要一个开关能整体关闭许可检测（本地开发、临时排查）
 - 需要按部署环境发放不同到期时间的许可（项目 A 到期日 ≠ 项目 B 到期日）
 - 排查「部署后直接报未授权使用 / 授权已过期」类问题
-- 需要续期（换发 exp.bin）而不改动业务代码
+- 续期 / 换发 exp.bin（用 `expbuild` 或参数化签发命令）
+- 排查「许可过期后 `php artisan expbuild` 也报未授权、命令被截断」的续期死锁
 
 **不适用**：
 - 登录账号权限、按钮级权限（`AdminPermission` 中间件 + permission 表）
@@ -56,7 +57,37 @@ config('admin.check_version') ?  ── 否 ──→ 直接放行（本地 / �
 | 许可文件层 | `api/bootstrap/cache/exp.bin` | 由 `APP_KEY` 加密的授权凭据，含到期时间与提示文案 |
 | 检测函数层 | `api/functions/helpers.php` → `check_version()` | 读取 + 解密 + 判过期 + 抛 `OutputException` |
 | 接入点层 | `api/app/Providers/AppServiceProvider.php` → `register()` | 在容器注册阶段触发一次检测，覆盖 HTTP 与 CLI |
+| 签发层 | `api/routes/console.php` → `expbuild` | 生成 exp.bin（**自身不豁免**检测，过期时需先关开关） |
 | 异常层 | `Las\Exceptions\OutputException` → `App\Exceptions\Handler` | 统一输出为接口 JSON 错误，不落 500 堆栈 |
+
+### 续期死锁（关键约束）
+
+检测点挂在 `register()`，意味着**签发许可的命令本身也会被检测拦截**：
+
+```
+exp.bin 已过期
+      ↓
+php artisan expbuild   ← 命令在 provider 注册阶段就被 OutputException 打断
+      ↓
+命令根本没跑到签发逻辑 → 无法生成新 exp.bin
+      ↓
+系统被永久锁死（除非有别的逃生口）
+```
+
+**唯一正解：用 `ADMIN_CHECK_VERSION=false` 临时关闭检测，签发完成后再改回 `true`。**
+
+```
+1. 编辑目标机 api/.env：ADMIN_CHECK_VERSION=false
+2. php artisan config:clear            ← 必须，config:cache 后 env 不再生效
+3. php artisan expbuild                ← 签发新 exp.bin
+4. 编辑目标机 api/.env：ADMIN_CHECK_VERSION=true
+5. php artisan config:clear
+6. 复验：访问任一接口，确认不再返回「已到期」
+```
+
+> 若目标机已执行 `php artisan config:cache` / `optimize`，`env()` 读取的是缓存值，**第 2、5 步的 `config:clear` 不可省略**，否则改 `.env` 不生效。
+>
+> 签发端与目标机分离时，签发端同样需要 `ADMIN_CHECK_VERSION=false`（签发端可能没有有效的 exp.bin）。
 
 ## Implementation checklist
 
@@ -77,13 +108,14 @@ config('admin.check_version') ?  ── 否 ──→ 直接放行（本地 / �
   ```
 
 - [ ] 本地开发 / 临时排查：`ADMIN_CHECK_VERSION=false`（**仅本机 .env**，禁止提交，见 `rules/apc-framework/security.md`）
+- [ ] **续期死锁场景必须靠该开关自救**：许可已过期时，签发命令本身也会被检测拦截（见下方「续期死锁」小节）
 
 ### 2. 许可文件层
 
 - [ ] 目标文件路径固定为 `api/bootstrap/cache/exp.bin`（`app()->bootstrapPath('cache/exp.bin')`）
 - [ ] 内容由 `Crypt::encrypt()` 生成，载荷为**数组**：`['x' => 到期时间戳, 'message' => 到期提示文案]`
 - [ ] 发放端与检测端必须使用**同一 `APP_KEY`**（`config('app.key')`）——`APP_KEY` 一变，所有已发放的 exp.bin 立即失效
-- [ ] 生成 / 续期方式见 [references/license-file.md](./references/license-file.md)（含可直接使用的 artisan 命令实现）
+- [ ] 生成 / 续期方式见 [references/license-file.md](./references/license-file.md)（含项目内既有的 `expbuild` 命令与可参数化的 `admin:license` 实现）
 - [ ] `bootstrap/cache/` 属部署产物目录，**不随代码发布自动携带**，发布流程必须单独拷贝该文件（见 `apc-build-helper` 的 `del` / 拷贝映射）
 
 ### 3. 检测函数层
@@ -132,6 +164,30 @@ config('admin.check_version') ?  ── 否 ──→ 直接放行（本地 / �
 - [ ] `register()` 阶段 `config()` 已可用（`LoadConfiguration` 先于 provider 注册执行）
 - [ ] `register()` 覆盖 HTTP 与 artisan CLI 两类入口；**不要**改成只挂中间件（CLI 会绕过）
 
+### 4.1 签发层
+
+- [ ] `api/routes/console.php` 注册签发命令（项目既有实现为 `expbuild`）：
+
+  ```php
+  use Illuminate\Support\Facades\Artisan;
+  use Illuminate\Support\Facades\Crypt;
+
+  Artisan::command('expbuild', function () {
+      $exp = [
+          'x' => strtotime('2027-6-1 00:00:00'),
+          'message' => '您的服务已到期，请及时与服务提供商联系以获取续订或更新服务的信息。'
+      ];
+      $exp = Crypt::encrypt($exp);
+      echo 'Build expire successfully!'.PHP_EOL;
+      echo $exp;
+      file_put_contents(app()->bootstrapPath('cache/exp.bin'), $exp);
+  })->describe('build expire message');
+  ```
+
+- [ ] 命令**不豁免**许可检测 → 交付流程必须包含「关开关 → 签发 → 开开关」步骤
+- [ ] 频繁续期场景改用参数化命令（`php artisan admin:license 2026-12-31`），避免每次改代码，见 [references/license-file.md §4.3](./references/license-file.md)
+- [ ] `echo $exp` 输出的密文含到期信息，不要在共享日志 / 工单中回显
+
 ### 5. 异常与前端表现
 
 - [ ] `OutputException` 被 `App\Exceptions\Handler::render()` 的 `expectsJson()` 分支捕获，返回统一 `ApiResponse` 结构（`code` + `message`）
@@ -147,11 +203,16 @@ config('admin.check_version') ?  ── 否 ──→ 直接放行（本地 / �
   1. 关闭开关 → 系统可正常访问
   2. 开启开关 + 有效 exp.bin → 系统可正常访问
   3. 开启开关 + 过期 / 缺失 exp.bin → 返回「未授权使用 / 已到期」提示
+- [ ] 确认签发命令（`expbuild`）在**开关关闭**时能正常跑通（否则过期后无法自救）
+- [ ] 确认交付文档里写明了续期流程含 `ADMIN_CHECK_VERSION=false` 的临时关闭步骤
 
 ## Anti-patterns
 
 - **把检测逻辑塞进中间件** → CLI（artisan / 队列 / 定时任务）不受中间件保护，绕过检测；检测必须挂在容器注册阶段
-- **`check_version()` 里不判 `config('admin.check_version')`** → 本地无法关闭，排查被阻塞
+- **把检测写成「只拦 HTTP，不拦 CLI」** → 签发命令被自己的过期许可拦死，形成续期死锁；`register()` 阶段检测 + `ADMIN_CHECK_VERSION` 开关是唯一出口
+- **过期后试图直接跑 `php artisan expbuild` 续期** → 命令在 provider 注册阶段就被 `OutputException` 打断，根本执行不到签发逻辑；必须先 `ADMIN_CHECK_VERSION=false` + `config:clear`
+- **改了 `.env` 就以为开关已生效** → 目标机若执行过 `config:cache` / `optimize`，`env()` 读的是缓存值，必须 `php artisan config:clear`
+- **`check_version()` 里不判 `config('admin.check_version')`** → 本地与续期都无法关闭，排查被阻塞
 - **每个入口各写一份校验** → 逻辑分散、易漏；只保留一个 `check_version()` 入口
 - **许可文件用明文 JSON / base64 不加密** → 客户端可自行改到期时间，检测形同虚设
 - **把 `APP_KEY` 随 exp.bin 一起发放或写死在代码里** → 违反密钥管理，泄露即全线失效
@@ -163,7 +224,7 @@ config('admin.check_version') ?  ── 否 ──→ 直接放行（本地 / �
 
 ## Additional resources
 
-- 许可文件机制（exp.bin 结构、加密约定、生成与续期、部署携带）：[references/license-file.md](./references/license-file.md)
+- 许可文件机制（exp.bin 结构、加密约定、`expbuild` 签发与续期、**续期死锁与逃生流程**、部署携带）：[references/license-file.md](./references/license-file.md)
 - 各接入点逐点详解（文件路径、代码落点、时序、异常链路、常见故障定位）：[references/integration-points.md](./references/integration-points.md)
 - 相关 Rule：[rules/apc-framework/](../../rules/apc-framework/)
   - [backend-laravel.md](../../rules/apc-framework/backend-laravel.md) — helpers.php 约束、错误码可追踪

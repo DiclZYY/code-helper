@@ -80,9 +80,44 @@ echo "written: {$file}\n";
 - `mkdir` 兜底：`bootstrap/cache` 不存在时脚本会失败
 - 落地文件权限建议 `0640`（含到期信息，属于凭据）
 
-### 4.2 artisan 命令方式（推荐用于重复签发）
+### 4.2 artisan 命令方式（项目既有实现：`expbuild`）
 
-在 `api/routes/console.php` 中注册命令：
+apc 框架内已在 `api/routes/console.php` 注册了签发命令 `expbuild`：
+
+```php
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Crypt;
+
+// 生成 exp.bin（到期时间与文案硬编码在命令内，签发时改这里）
+Artisan::command('expbuild', function () {
+    $exp = [
+        'x' => strtotime('2027-6-1 00:00:00'),
+        'message' => '您的服务已到期，请及时与服务提供商联系以获取续订或更新服务的信息。'
+    ];
+    $exp = Crypt::encrypt($exp);
+    echo 'Build expire successfully!'.PHP_EOL;
+    echo $exp;
+    file_put_contents(app()->bootstrapPath('cache/exp.bin'), $exp);
+})->describe('build expire message');
+```
+
+调用：
+
+```bash
+php artisan expbuild
+```
+
+要点：
+- 命令**同时**打印密文并写入 `bootstrap/cache/exp.bin`——打印的密文可用于跨机器投放（目标机 `APP_KEY` 必须一致）
+- 到期时间与提示文案硬编码在命令内 → 每次续期都要改代码；命令注册在 `routes/console.php`，改的是**部署侧代码**，注意版本管理
+- `strtotime('2027-6-1 00:00:00')` 依赖**服务器默认时区**，与 `config/app.php` 的 `timezone` 保持一致即可；跨时区签发前先确认时区
+- `echo $exp` 会把密文写进命令输出 → 密文含到期信息，**不要**在共享日志/工单里回显
+
+> **命令本身也会被许可检测拦截**：许可已过期时，`php artisan expbuild` 在 provider 注册阶段就抛 `OutputException`，执行不到签发逻辑。必须先按 [§5 续期死锁与逃生流程](#5-续期死锁与逃生流程) 临时关闭检测。
+
+### 4.3 可参数化版本（推荐用于重复签发）
+
+若需要频繁签发且不想每次改代码，可注册一个带参数的等价命令：
 
 ```php
 Artisan::command('admin:license', function () {
@@ -115,21 +150,75 @@ Artisan::command('admin:license', function () {
 php artisan admin:license 2026-12-31 --message="系统授权已于 2026-12-31 到期，请联系管理员续期。"
 ```
 
-> 命令默认**不**自动注册到 `routes/console.php`（若项目采用「默认注释 + 守卫」策略，见 `apc-wechat-auth` 的 `admin:authorize` 处理方式），需要时自行取消注释启用。签发命令等同于密钥操作入口，建议仅在签发方环境启用。
+> 命令等同于密钥操作入口，建议仅在签发方环境启用；若项目采用「默认注释 + 守卫」策略（见 `apc-wechat-auth` 的 `admin:authorize` 处理方式），需要时自行取消注释启用。
 
-### 4.3 续期
+### 4.4 续期
 
 续期 = 用新到期时间**重新生成** exp.bin 并覆盖目标文件，无需改动任何业务代码。
 
 ```
 1. 取新到期日（含时区确认）
-2. 用签发端（与目标机同 APP_KEY）执行生成命令
-3. 覆盖目标机 api/bootstrap/cache/exp.bin
-4. 重启 / 清理缓存（php artisan optimize:clear）
-5. 复验：访问任一接口，确认不再返回「未授权使用」
+2. 临时关闭许可检测（见 §5 续期死锁与逃生流程）—— 否则签发命令自身被拦死
+3. 用签发端（与目标机同 APP_KEY）执行 expbuild / admin:license
+4. 覆盖目标机 api/bootstrap/cache/exp.bin
+5. 恢复 ADMIN_CHECK_VERSION=true 并 php artisan config:clear
+6. 复验：访问任一接口，确认不再返回「未授权使用」
 ```
 
-## 5. 部署携带
+## 5. 续期死锁与逃生流程
+
+### 现象
+
+许可（exp.bin）已过期后，**签发命令本身也会被拦截**：
+
+```
+php artisan expbuild
+      ↓
+Laravel 启动 → RegisterProviders → AppServiceProvider::register() → check_version()
+      ↓
+读到 exp.bin 已过期 → throw OutputException
+      ↓
+命令未执行到签发逻辑 → 新 exp.bin 根本没有生成
+```
+
+因为检测点位于**容器注册阶段**，它对所有 CLI 命令一视同仁，签发命令并不能豁免。直接表现：控制台命令被截断，系统无法自救。
+
+### 逃生流程（唯一正解）
+
+用 `ADMIN_CHECK_VERSION=false` 临时关闭检测，签发完成后再改回：
+
+```
+1. 编辑目标机 api/.env：ADMIN_CHECK_VERSION=false
+2. php artisan config:clear            ← 必须
+3. php artisan expbuild                ← 签发新 exp.bin
+4. 编辑目标机 api/.env：ADMIN_CHECK_VERSION=true
+5. php artisan config:clear            ← 必须
+6. 复验：访问任一接口，确认不再返回「已到期」
+```
+
+关键细节：
+
+| 细节 | 说明 |
+|------|------|
+| `config:clear` 不可省略 | 目标机若执行过 `php artisan config:cache` / `optimize`，`env()` 读的是**缓存值**，改 `.env` 不生效 |
+| 改的是目标机 `.env` | 不是签发端的；每台目标机都要单独改、单独改回 |
+| 签发端也要关 | 签发端若没有有效 exp.bin，`expbuild` 同样会被拦，需同样临时关闭 |
+| 窗口要短 | 关闭期间系统不校验许可，应尽快签发并恢复；期间不要重启到其它操作窗口外 |
+| 改回后必须 `config:clear` | 否则检测仍是关闭状态，许可形同虚设 |
+
+### 根治建议（可选）
+
+若频繁续期，可考虑以下任一改造，避免每次都要动 `.env`：
+
+| 方案 | 做法 | 代价 |
+|------|------|------|
+| 签发命令豁免 | 在 `check_version()` 中跳过「当前正在执行的命令是签发命令」 | 需要 `Artisan::runningInConsole()` + 命令名白名单判断 |
+| 独立签发脚本 | 用不经过 Laravel 启动流程的独立 PHP 脚本签发（需自行 bootstrap 以取得 `Crypt`） | 脚本需与目标机同 `APP_KEY`，且解密验证要另做 |
+| 续期入口后置 | 把检测从 `register()` 移到 `boot()` 并排除签发命令 | 覆盖面变弱，需评估队列 / 定时任务是否仍被保护 |
+
+> 无论哪种方案，**都要保留 `ADMIN_CHECK_VERSION` 开关**作为最终逃生口。
+
+## 6. 部署携带
 
 许可文件必须随发布产物一起送到目标机。
 
@@ -141,7 +230,7 @@ php artisan admin:license 2026-12-31 --message="系统授权已于 2026-12-31 �
 
 > `apc-build-helper` 的全量打包默认会跳过运行时目录，**必须**在 `del` 清单与拷贝映射中显式处理，否则目标机上线即报「未授权使用」。
 
-## 6. 常见故障
+## 7. 常见故障
 
 | 现象 | 原因 | 处置 |
 |------|------|------|
@@ -149,5 +238,8 @@ php artisan admin:license 2026-12-31 --message="系统授权已于 2026-12-31 �
 | 部分实例提示「未授权使用」 | 部分节点 `APP_KEY` 与签发端不一致 | 统一各节点 `APP_KEY`，重新签发 |
 | 提示「系统已过期」但明明没到期 | 服务器时间漂移 / 时区不一致 | 校准时间（`timedatectl` / NTP），确认签发时用的时区 |
 | 本地开发被拦截 | `ADMIN_CHECK_VERSION` 未设为 `false` | 本机 `.env` 设置 `ADMIN_CHECK_VERSION=false` |
+| **过期后 `php artisan expbuild` 报未授权 / 命令被截断** | **签发命令自身被许可检测拦截（续期死锁）** | **按 §5 逃生流程：`.env` 设 `ADMIN_CHECK_VERSION=false` → `config:clear` → 签发 → 改回 `true` → `config:clear`** |
+| 改了 `.env` 但开关没生效 | 目标机跑过 `config:cache` / `optimize`，env 读的是缓存 | 执行 `php artisan config:clear` |
 | 偶发报未授权，随后正常 | `bootstrap/cache` 被 `bootstrap:cache` / 部署脚本清理 | 补齐发布拷贝清单，exp.bin 不属于可清理产物 |
 | 解密报类型错误 | 载荷不是数组（如写成了字符串） | 签发端统一写 `['x' => ..., 'message' => ...]` |
+| 签发出来的 exp.bin 在目标机不可用 | 签发端与目标机 `APP_KEY` 不同 | 统一 `APP_KEY` 后重新签发 |
