@@ -9,7 +9,7 @@
 | Skill | 说明 |
 |-------|------|
 | [spa-naf](spa-naf/) | Vue2/3 + React：Tab 主壳 + 子页叠层、slide 转场、鉴权路由、keep-alive |
-| [ai-agents-installer](ai-agents-installer/) | 初始化项目的 AI 工具集：生成 AGENTS.md + .agents/ 标准骨架，并按 `npx skills add` 把 skill/rule 装到 .agents/skills / .agents/rules |
+| [ai-agents-installer](ai-agents-installer/) | 初始化 AGENTS.md + .agents/ 骨架；CLAUDE.md 薄指针；长 CLAUDE 拆入 rules；npx skills add 装到 .agents/skills|rules |
 | [apc-wechat-auth](apc-wechat-auth/) | admin-pro-core：device.authorize 客户端授权 + 可选微信小程序登录栈 |
 | [css-anicase](css-anicase/) | 纯前端动画案例库：SVG + CSS，可选 GSAP；含光球 / 无缝波浪 / 透视事务卡片 |
 | [apc-module-dev](apc-module-dev/) | apc 框架：新增一个标准业务模块的完整流程（后端三件套 + 前端四页 + mainResources + 权限 SQL + 模拟数据） |

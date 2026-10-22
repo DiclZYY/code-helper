@@ -71,6 +71,17 @@ function detect(projectRoot) {
     if (!ok) result.missingFiles.push(f)
   }
 
+  // CLAUDE.md：可选兼容入口；不计入 missing/partial，但报告是否需迁移（长文 > 30 行）
+  const claudePath = join(root, 'CLAUDE.md')
+  const claudeExists = existsSync(claudePath) && statSync(claudePath).isFile()
+  result.files['CLAUDE.md'] = claudeExists
+  result.claude = { exists: claudeExists, lineCount: 0, needsMigration: false }
+  if (claudeExists) {
+    const lines = readFileSync(claudePath, 'utf8').split(/\r?\n/).length
+    result.claude.lineCount = lines
+    result.claude.needsMigration = lines > 30
+  }
+
   if (result.missingDirs.includes('.agents') && !result.files['AGENTS.md']) {
     result.state = 'missing'
   } else if (result.missingDirs.length > 0 || result.missingFiles.length > 0) {

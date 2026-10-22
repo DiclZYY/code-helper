@@ -3,12 +3,14 @@ name: ai-agents-installer
 description: >-
   Initializes a project's AI toolset following the AGENTS.md + .agents
   industry standard. Detects whether AGENTS.md or .agents exist, scaffolds
-  the standard layout (AGENTS.md, .agents/README.md, .agents/skills/,
-  .agents/rules/) from bundled templates, and installs skills / rules from a
-  configured repository (default: DiclZYY/code-helper) into
-  .agents/skills and .agents/rules via npx skills add. Use when bootstrapping
-  or scaffolding an AI toolset, AGENTS.md, .agents directory, agent workflow,
-  or installing a skill/rule from a repo into a project's .agents layout.
+  the standard layout (AGENTS.md, optional thin CLAUDE.md pointer,
+  .agents/README.md, .agents/skills/, .agents/rules/) from bundled templates,
+  consolidates long CLAUDE.md into rules (single source of truth), and installs
+  skills / rules from a configured repository (default: DiclZYY/code-helper)
+  into .agents/skills and .agents/rules via npx skills add. Use when
+  bootstrapping or scaffolding an AI toolset, AGENTS.md, CLAUDE.md migration,
+  .agents directory, agent workflow, or installing a skill/rule from a repo
+  into a project's .agents layout.
 license: MIT
 compatibility: Requires Node.js 18+, npx, and network access to GitHub for `npx skills add` / `npx degit`.
 ---
@@ -17,9 +19,12 @@ compatibility: Requires Node.js 18+, npx, and network access to GitHub for `npx 
 
 把当前项目初始化为「符合 AGENTS.md + `.agents/` 行业标准」的 AI 编程助手工作区，并按需从仓库拉取 skill / rule。
 
+**内容分层**：`AGENTS.md` = 索引 + 硬约束摘要；架构正文在 `.agents/rules/`；根 `CLAUDE.md` 仅为 Claude Code 兼容**薄指针**（详见 [references/claude-and-agents.md](references/claude-and-agents.md)）。
+
 - 标准与目录结构：[references/agents-standard.md](references/agents-standard.md)
+- CLAUDE ↔ AGENTS 关系与迁移：[references/claude-and-agents.md](references/claude-and-agents.md)
 - 命令与故障排查：[references/installer-commands.md](references/installer-commands.md)
-- 模板文件：[assets/templates/AGENTS.md.tpl](assets/templates/AGENTS.md.tpl)、[assets/templates/agents-readme.md.tpl](assets/templates/agents-readme.md.tpl)、[assets/templates/skills-readme.md.tpl](assets/templates/skills-readme.md.tpl)、[assets/templates/rules-readme.md.tpl](assets/templates/rules-readme.md.tpl)
+- 模板文件：[assets/templates/AGENTS.md.tpl](assets/templates/AGENTS.md.tpl)、[assets/templates/CLAUDE.md.tpl](assets/templates/CLAUDE.md.tpl)、[assets/templates/agents-readme.md.tpl](assets/templates/agents-readme.md.tpl)、[assets/templates/skills-readme.md.tpl](assets/templates/skills-readme.md.tpl)、[assets/templates/rules-readme.md.tpl](assets/templates/rules-readme.md.tpl)
 - 检测与生成脚本：[scripts/detect.mjs](scripts/detect.mjs)、[scripts/scaffold.mjs](scripts/scaffold.mjs)
 
 ## When to use
@@ -28,6 +33,7 @@ compatibility: Requires Node.js 18+, npx, and network access to GitHub for `npx 
 
 - 第一次给项目接入 AI 编程助手（Cursor / Claude / Trae 等），需要落地 AGENTS.md + `.agents/` 标准
 - 已有项目里 AGENTS.md / `.agents/` 缺失或残缺，需要补齐骨架
+- 已有长 `CLAUDE.md`（项目解构 / 架构正文），要整合进 AGENTS + `.agents/rules/`，避免双份维护
 - 想把仓库 `DiclZYY/code-helper` 里的某个或某些 skill / rule 安装到项目中，并放进 `.agents/skills` / `.agents/rules`
 - 用户给出「在项目里装一下这个 skill」类需求，且当前项目尚未配套 `.agents/` 骨架
 
@@ -42,14 +48,15 @@ compatibility: Requires Node.js 18+, npx, and network access to GitHub for `npx 
 ```mermaid
 flowchart TB
   subgraph project["目标项目根目录"]
-    agentsMd["AGENTS.md<br/>AI 助手工作准则"]
+    agentsMd["AGENTS.md<br/>索引 + 硬约束摘要"]
+    claudeMd["CLAUDE.md<br/>薄指针"]
     agentsDir[".agents/"]
     skillsDir[".agents/skills/"]
-    rulesDir[".agents/rules/"]
+    rulesDir[".agents/rules/<br/>架构正文单一事实源"]
     readmeA[".agents/README.md"]
     skillsReadme[".agents/skills/README.md"]
     rulesReadme[".agents/rules/README.md"]
-    stackRule[".agents/rules/<stack-name>/<br/>frontend-stack.md + backend-stack.md + SOURCES.md"]
+    stackRule[".agents/rules/<stack-name>/<br/>frontend / backend / SOURCES"]
   end
   subgraph src["源仓库 (默认 DiclZYY/code-helper)"]
     srcSkills["skills/<name>/SKILL.md"]
@@ -59,10 +66,16 @@ flowchart TB
     npx["npx skills add <repo> --skill <name>"]
     detectCmd["detect.mjs --hint stack"]
   end
-  detect["detect.mjs<br/>扫描 AGENTS.md / .agents/ 状态"] --> state{"已存在?"}
+  claudeMd --> agentsMd
+  agentsMd --> rulesDir
+  agentsMd --> skillsDir
+  detect["detect.mjs<br/>扫描 AGENTS.md / .agents/ / CLAUDE.md"] --> state{"已存在?"}
   state -- 缺失/残缺 --> scaffold["scaffold.mjs<br/>从 assets/templates 复制补齐"]
   state -- 完整 --> skipInit["跳过 init"]
   scaffold --> readmeA
+  scaffold --> claudeMd
+  detect --> claudeCheck{"CLAUDE 长文?"}
+  claudeCheck -- needsMigration --> migratePanel["Step 2.5 面板<br/>拆入 rules / 薄指针"]
   userAsk["用户要求安装 skill/rule"] --> pickTarget{"指定 .agents?"}
   pickTarget -- 默认 --> defaultLayout[".agents/skills 或 .agents/rules"]
   pickTarget -- 指定其它 --> otherLayout["用户指定目录"]
@@ -86,11 +99,12 @@ flowchart TB
 
 | 路径 | 作用 | 是否必建 |
 |------|------|----------|
-| `AGENTS.md` | AI 助手在项目中的工作准则（位置、语言、约束） | 是 |
+| `AGENTS.md` | AI 助手工作准则（索引型） | 是 |
+| `CLAUDE.md` | Claude Code 兼容薄指针 | 推荐（缺失则 scaffold 写入；已有长文走 Step 2.5） |
 | `.agents/` | AI 助手配置根目录 | 是 |
 | `.agents/README.md` | 目录说明与维护约定 | 是 |
 | `.agents/skills/` | 已安装 skill 落点（项目级） | 是 |
-| `.agents/rules/` | 已安装 rule 落点（项目级） | 是 |
+| `.agents/rules/` | 已安装 rule 落点（项目级；架构正文） | 是 |
 | `.agents/skills/README.md` | skills 子目录索引骨架 | 是 |
 | `.agents/rules/README.md` | rules 子目录索引骨架 | 是 |
 
@@ -107,7 +121,7 @@ flowchart TB
 | 类型 | 触发方式 | 内容特征 | 落点 |
 |------|----------|----------|------|
 | **skill** | 按 description 触发词按需加载 | 解决某类问题的完整方法论 + checklist + 模板 | `.agents/skills/<name>/SKILL.md` + 可选 `references/` `assets/` `scripts/` |
-| **rule** | 始终生效，常驻上下文 | 硬约束 / 编码规范 / 强制工作流 | `.agents/rules/<name>/*.md`（一组围绕同一框架的硬约束文件） |
+| **rule** | 始终生效，常驻上下文 | 硬约束 / 编码规范 / 强制工作流 / **项目架构解构** | `.agents/rules/<name>/*.md`（一组围绕同一框架的硬约束文件） |
 
 `npx skills add` 默认装的是 skill；rule 需要从源仓库的 `rules/<name>/` 直接拷贝到 `.agents/rules/<name>/`。
 
@@ -121,6 +135,7 @@ flowchart TB
 - [ ] 是否存在 `.agents/` 目录
 - [ ] 是否存在 `.agents/skills/`、`.agents/rules/`、`README.md`
 - [ ] 是否存在 `.agents/skills/README.md`、`.agents/rules/README.md`
+- [ ] 报告 `CLAUDE.md`：`exists` / `lineCount` / `needsMigration`（`lineCount > 30`）；**不**因缺失 CLAUDE 将 state 降为 partial
 - [ ] 给出 `missing` / `partial` / `ready` 三档结论
 
 完整检测脚本见 [scripts/detect.mjs](scripts/detect.mjs)。
@@ -152,11 +167,12 @@ questions:
 按检测结果**只写缺失文件**，不要覆盖已有内容：
 
 - `AGENTS.md` → 复制 [assets/templates/AGENTS.md.tpl](assets/templates/AGENTS.md.tpl)，替换占位符
+- `CLAUDE.md` → 仅当**不存在**时复制 [assets/templates/CLAUDE.md.tpl](assets/templates/CLAUDE.md.tpl)（薄指针）；已存在则**绝不**在本步覆盖
 - `.agents/README.md` → [assets/templates/agents-readme.md.tpl](assets/templates/agents-readme.md.tpl)
 - `.agents/skills/README.md` → [assets/templates/skills-readme.md.tpl](assets/templates/skills-readme.md.tpl)
 - `.agents/rules/README.md` → [assets/templates/rules-readme.md.tpl](assets/templates/rules-readme.md.tpl)
 
-`AGENTS.md.tpl` 包含以下占位符，生成时**必须**替换：
+`AGENTS.md.tpl` / `CLAUDE.md.tpl` 包含以下占位符，生成时**必须**替换：
 
 | 占位符 | 含义 | 示例 |
 |--------|------|------|
@@ -166,6 +182,17 @@ questions:
 | `{{DATE}}` | 初始化日期（YYYY-MM-DD） | `2026-07-15` |
 
 生成脚本见 [scripts/scaffold.mjs](scripts/scaffold.mjs)。
+
+### 2.5 处理已有长 CLAUDE.md（确认面板）
+
+当 `detect` 报告 `claude.needsMigration === true`（或人工判断 CLAUDE 含项目结构 / 核心架构等章节）时，**必须**弹出面板（不可静默覆盖 / 删除）。面板选项与落点约定见 [references/claude-and-agents.md](references/claude-and-agents.md)。
+
+执行「拆入 rules + 薄指针」时：
+
+- [ ] 将结构树 / 前后端架构 / 命令 / 关键约定拆入 `.agents/rules/` 对应文件（或既有框架 rule）
+- [ ] `AGENTS.md` 保持索引型：Overview + Key patterns 链接，删除冗长大段 Project-specific patterns
+- [ ] `CLAUDE.md` 整文件替换为薄指针模板内容
+- [ ] 同步 `.agents/README.md` 注明「架构以 rules 为准，CLAUDE 仅为兼容入口」
 
 ### 3. 安装 skill
 
@@ -214,6 +241,8 @@ npx degit {{REPO_DEFAULT}}/rules/<rule-name> .agents/rules/<rule-name>
 ### 7. 深度解读源码生成规范（可选，仅当 Step 1.5 选 A 时执行）
 
 本步骤把项目源码的固定模式（命名 / 目录 / mixin / 三件套 / 样式约定等）抽取出来，自动生成两份 rule 并回填 `AGENTS.md` 的占位段。详细执行手册见 [references/derive-stack-spec.md](references/derive-stack-spec.md)。
+
+生成的 stack rule 是架构 / 约定的落点之一；**不要**把扫描结果大段写回 `AGENTS.md` 或 `CLAUDE.md`。
 
 #### 7.1 获取项目元数据 hint
 
@@ -306,6 +335,7 @@ AI 自行决定读哪些文件，但**至少**覆盖下列样本：
 - 不修改列表项标签文本（如「- 前端：」中的 `前端` 必须保留）
 - 不删除括号注释（如「(npm / pnpm / yarn / composer)」），只替换 `<fill>` 部分
 - 替换失败（找不到锚点）时跳过该项并 console 输出 warning，不报错
+- **不要**把扫描出的架构细节写入 `CLAUDE.md`
 
 #### 7.5 更新 Installed toolset
 
@@ -349,6 +379,9 @@ AI 自行决定读哪些文件，但**至少**覆盖下列样本：
 - 把所有 skill 全装到一个扁平目录，丢失 `references/` `assets/` `scripts/` 的子目录结构
 - 把 rule 当 skill 装（`npx skills add` 不适用于硬约束型 rule）
 - 在 `AGENTS.md` 写「所有约束」后仍让 `.agents/skills/` 与 `.agents/rules/` 缺失 → 工具集只挂在 AGENTS.md，AI 助手无法按 description 触发
+- 在 `AGENTS.md` 或 `CLAUDE.md` 写大段项目解构 / Project-specific patterns → 应进 `.agents/rules/`（双入口、单正文）
+- 让 `CLAUDE.md` 与 `AGENTS.md` 保持全文同步副本 → 必然漂移
+- init 时静默覆盖 / 删除用户已有长 `CLAUDE.md` → 必须走 Step 2.5 面板
 - 跨平台时忽略 PowerShell 与 `npx degit` 的差异（见 [references/installer-commands.md](references/installer-commands.md#跨平台注意)）
 - 把 `code-helper` 的仓库地址写死成 `code-helper`（仓库名是 `code-helper`），导致 `npx skills add` 找不到
 - 不回写 `AGENTS.md` 的「已安装工具集」，后续接手者无法快速知道项目挂了哪些 skill / rule
@@ -369,11 +402,13 @@ AI 自行决定读哪些文件，但**至少**覆盖下列样本：
 ## Additional resources
 
 - [references/agents-standard.md](references/agents-standard.md) — AGENTS.md + `.agents/` 行业标准来源与字段含义
+- [references/claude-and-agents.md](references/claude-and-agents.md) — CLAUDE.md 薄指针、迁移面板、与 AGENTS/rules 职责分层
 - [references/installer-commands.md](references/installer-commands.md) — `npx skills add` / `npx degit` 命令、跨平台、故障排查
 - [references/derive-stack-spec.md](references/derive-stack-spec.md) — Step 7 深度解读源码：扫描源清单、输出模板、AGENTS.md 回填算法
-- [assets/templates/AGENTS.md.tpl](assets/templates/AGENTS.md.tpl) — 根 `AGENTS.md` 模板
+- [assets/templates/AGENTS.md.tpl](assets/templates/AGENTS.md.tpl) — 根 `AGENTS.md` 模板（索引型）
+- [assets/templates/CLAUDE.md.tpl](assets/templates/CLAUDE.md.tpl) — 根 `CLAUDE.md` 薄指针模板
 - [assets/templates/agents-readme.md.tpl](assets/templates/agents-readme.md.tpl) — `.agents/README.md` 模板
 - [assets/templates/skills-readme.md.tpl](assets/templates/skills-readme.md.tpl) — `.agents/skills/README.md` 模板
 - [assets/templates/rules-readme.md.tpl](assets/templates/rules-readme.md.tpl) — `.agents/rules/README.md` 模板
-- [scripts/detect.mjs](scripts/detect.mjs) — 检测项目当前 AGENTS.md + `.agents/` 状态
-- [scripts/scaffold.mjs](scripts/scaffold.mjs) — 仅写缺失骨架文件
+- [scripts/detect.mjs](scripts/detect.mjs) — 检测项目当前 AGENTS.md + `.agents/` + CLAUDE 迁移标记
+- [scripts/scaffold.mjs](scripts/scaffold.mjs) — 仅写缺失骨架文件（含缺失时的 CLAUDE 薄指针）

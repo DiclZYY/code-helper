@@ -6,6 +6,8 @@ AI 编程助手（Cursor / Claude / Trae / Codex 等）请先阅读本文件，�
 
 `{{PROJECT_NAME}}` 是一个使用 {{PRIMARY_LANG}} 的项目。本文件约束 AI 助手的工作范围、协作约定与可用工具集。
 
+项目解构、架构与硬约束详见 [`.agents/rules/`](.agents/rules/)；流程类 SOP 见 [`.agents/skills/`](.agents/skills/)。根目录 `CLAUDE.md` 仅为兼容入口（薄指针），不维护双份正文。
+
 ## Working directory
 
 主要改动落在：
@@ -49,6 +51,15 @@ AI 编程助手（Cursor / Claude / Trae / Codex 等）请先阅读本文件，�
 - 代码风格：`<fill>`
 <!-- /ai-agents-installer:conventions:codestyle -->
 
+## Key patterns（索引）
+
+> 架构细节写在 `.agents/rules/`，此处只保留链接，勿粘贴大段正文。
+
+- 目录边界 / 目录树 → `.agents/rules/` 中对应 `repo-structure` 或等价文件
+- 前端约定 → `.agents/rules/` 中对应 `frontend-*`
+- 后端约定 → `.agents/rules/` 中对应 `backend-*`
+- 本地启动与命令 → `.agents/rules/` 中对应 `dev-workflow`
+
 ## Installed toolset
 
 - 源仓库：`{{REPO_DEFAULT}}`
@@ -73,11 +84,12 @@ AI 编程助手（Cursor / Claude / Trae / Codex 等）请先阅读本文件，�
 - 不要把 skill / rule 装到 `node_modules/.skills/` 后不同步到 `.agents/`
 - 不要修改 `AGENTS.md` 的「Conventions」段落除非用户明确要求
 - 不要把 `{{REPO_DEFAULT}}` 改成个人 fork 仓库而不告知协作者
-- 不要在 `AGENTS.md` 写大段代码片段，方法论放到对应的 `.agents/skills/<name>/`
+- 不要在 `AGENTS.md` 写大段代码片段或 Project-specific patterns；方法论进 `.agents/skills/`，架构细节进 `.agents/rules/`
+- 不要再维护独立的大段 `CLAUDE.md` 或双份项目解构；根 `CLAUDE.md` 仅为兼容入口
 
 ## Updating
 
 修改本文件后请同步：
 
 1. 更新「Installed toolset」段落
-2. 若新增 / 删除顶级段落，在 [references/agents-standard.md](../references/agents-standard.md) 校对一遍
+2. 若新增 / 删除顶级段落，在 skill 的 [references/agents-standard.md](../references/agents-standard.md) 校对一遍

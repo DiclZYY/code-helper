@@ -93,6 +93,12 @@ function main() {
     render(readTemplate('AGENTS.md.tpl'), vars),
   ))
 
+  // Claude Code 兼容入口：仅在缺失时写入薄指针；已有长文由 SKILL Step 2.5 面板处理，禁止静默覆盖
+  writes.push(writeIfMissing(
+    join(root, 'CLAUDE.md'),
+    render(readTemplate('CLAUDE.md.tpl'), vars),
+  ))
+
   writes.push(writeIfMissing(
     join(root, '.agents', 'README.md'),
     readTemplate('agents-readme.md.tpl'),

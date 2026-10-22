@@ -11,7 +11,7 @@
 npx skills add DiclZYY/code-helper --skill ai-agents-installer
 ```
 
-安装 `ai-agents-installer` 后，在目标项目里执行 `node scripts/detect.mjs` → `node scripts/scaffold.mjs`，即可生成符合 AGENTS.md + `.agents/` 行业标准的骨架，并把后续 skill / rule 默认安装到 `.agents/skills/`、`.agents/rules/`。
+安装 `ai-agents-installer` 后，在目标项目里执行 `node scripts/detect.mjs` → `node scripts/scaffold.mjs`，即可生成符合 AGENTS.md + `.agents/` 行业标准的骨架（含可选薄指针 `CLAUDE.md`），并把后续 skill / rule 默认安装到 `.agents/skills/`、`.agents/rules/`。架构正文只写在 rules，避免与 CLAUDE 双份维护。
 
 ## 目录结构
 
