@@ -15,6 +15,7 @@
 | [apc-module-dev](apc-module-dev/) | apc 框架：新增一个标准业务模块的完整流程（后端三件套 + 前端四页 + mainResources + 权限 SQL + 模拟数据） |
 | [apc-build-helper](apc-build-helper/) | apc 框架：构建工具链安装（version + release + deploy + release-config.json，支持 npm/pnpm） |
 | [apc-release-changelog](apc-release-changelog/) | apc 框架：发布后生成 changelog（识别起点 commit + 抽取 message 集合 + AI 归类整理 + 可选 artisan 入库） |
+| [apc-license-check](apc-license-check/) | apc 框架：系统许可检测（check_version + exp.bin 加密许可文件 + OutputException 拦截 + 续期签发） |
 
 ## 安装
 
@@ -28,6 +29,7 @@ npx skills add DiclZYY/code-helper --skill css-anicase
 npx skills add DiclZYY/code-helper --skill apc-module-dev
 npx skills add DiclZYY/code-helper --skill apc-build-helper
 npx skills add DiclZYY/code-helper --skill apc-release-changelog
+npx skills add DiclZYY/code-helper --skill apc-license-check
 ```
 
 ### 手动（个人 skills 目录）
