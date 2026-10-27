@@ -17,6 +17,7 @@
 | [apc-build-helper](skills/apc-build-helper/) | apc 框架：构建工具链安装（version + release + deploy + release-config.json，支持 npm/pnpm） |
 | [apc-release-changelog](skills/apc-release-changelog/) | apc 框架：发布后生成 changelog（识别起点 commit + 抽取 message 集合 + AI 归类整理 + 可选 artisan 入库） |
 | [apc-license-check](skills/apc-license-check/) | apc 框架：系统许可检测（check_version + exp.bin 加密许可文件 + OutputException 拦截 + 续期签发） |
+| [apc-shelf-position](skills/apc-shelf-position/) | apc 框架：密集架配置（库/区/列 + 面/组/层）与档案箱/盒位置三字段；库区 pid 树 / 库房外键 + area_group 单字母两种模式；admin + H5 选位与网格占用 |
 
 ## 安装
 
@@ -31,6 +32,7 @@ npx skills add DiclZYY/code-helper --skill apc-module-dev
 npx skills add DiclZYY/code-helper --skill apc-build-helper
 npx skills add DiclZYY/code-helper --skill apc-release-changelog
 npx skills add DiclZYY/code-helper --skill apc-license-check
+npx skills add DiclZYY/code-helper --skill apc-shelf-position
 ```
 
 ### 手动（个人 skills 目录）
