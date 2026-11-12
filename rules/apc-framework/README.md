@@ -21,7 +21,12 @@
 - [repo-structure.md](./repo-structure.md) — 仓库目录结构与边界（backend / api 严格分离）
 - [code-style.md](./code-style.md) — 编码规范（Git 分支 / 提交 / 接口约定 / 命名）
 - [security.md](./security.md) — 安全与敏感信息（`.env` 禁入库 / 日志脱敏 / 依赖供应链）
-- [dev-workflow.md](./dev-workflow.md) — 本地开发流程（启动 / 联调 / 常见问题定位）
+- [dev-workflow.md](./dev-workflow.md) — 本地开发流程（启动 / 联调 / 常见问题定位 / **AI Agent 浏览器验证**）
+
+### 物料模板（assets/）
+
+- [assets/dev-server.php](./assets/dev-server.php) — 仓库根 PHP 内置服务器路由脚本（配合 `php -S 127.0.0.1:8001 -t public dev-server.php`）
+- [assets/env.ai.template](./assets/env.ai.template) — Agent 调试前端配置模板（复制为 `backend/.env.ai`，禁入库）
 
 ### 前端专项
 
@@ -47,6 +52,7 @@
 | 准备发布 | [skills/apc-build-helper](../../skills/apc-build-helper/)（构建脚本安装 + npm 命令）→ security |
 | 发布后 changelog | [skills/apc-release-changelog](../../skills/apc-release-changelog/)（extract + classify + format + 入库） |
 | 排查通用问题 | dev-workflow（常见问题定位） |
+| AI / Agent 浏览器验证 | dev-workflow（AI Agent 调试）→ [assets/dev-server.php](./assets/dev-server.php) → [assets/env.ai.template](./assets/env.ai.template) |
 
 ## Rule vs Skill 设计说明
 

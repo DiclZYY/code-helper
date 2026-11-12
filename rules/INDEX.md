@@ -20,7 +20,7 @@
 
 | Rule | 说明 |
 |------|------|
-| [apc-framework](apc-framework/) | apc 框架（Vue2 + Laravel）：技术栈、目录边界、编码规范、安全、Vue2 / Laravel 工程规范、模块开发与发布概要 |
+| [apc-framework](apc-framework/) | apc 框架（Vue2 + Laravel）：技术栈、目录边界、编码规范、安全、Vue2 / Laravel 工程规范、本地开发与 AI Agent 调试（含 dev-server.php / .env.ai 物料）、模块开发与发布概要 |
 
 ## 安装
 
